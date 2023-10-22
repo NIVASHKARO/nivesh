@@ -83,6 +83,7 @@ function App() {
           <Route path="update/fund/:id" element={<FundUpdate />} />
           <Route path="buy/:id" element={<InitialBuy />} />
           <Route path="payment" element={<Payment />} />
+          <Route path="success-popup/:orderId" element={<InitialBuy />} />
           <Route path="success/:id" element={<Success />} />
           <Route path="orders" element={<Orders />} />
           <Route path="news" element={<News />} />
