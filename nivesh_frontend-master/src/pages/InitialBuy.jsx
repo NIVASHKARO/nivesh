@@ -4,6 +4,7 @@ import {
   AlertIcon,
   AlertTitle,
   Box,
+  Image,
   Button,
   Heading,
   Input,
@@ -14,6 +15,7 @@ import {
   useColorModeValue,
   useToast,
 } from "@chakra-ui/react";
+import toIndianCurrency from "../helper";
 import React, { useEffect, useRef, useState } from "react";
 import { buyNow, getSpecificFund, paymentStatus, baseurl } from "../api/apis";
 import { useNavigate, useParams } from "react-router-dom";
@@ -199,10 +201,26 @@ const InitialBuy = () => {
       <Text>Buying...</Text>
       <Stack spacing={4} mt={10} border="1px" borderRadius={"md"} p={3}>
         <Stack direction="row" justifyContent="space-between">
-          <Heading>{specificFund?.name}</Heading>
-          <Heading>₹ {specificFund?.minimumInvestment}</Heading>
+          <Heading>
+            <Stack spacing={4} direction={"row"}>
+              <Image
+                borderRadius="full"
+                boxSize="100px"
+                src={specificFund?.image}
+                alt={specificFund?.name}
+                fallbackSrc="https://via.placeholder.com/100"
+                size="md"
+              />
+              <Box display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
+                <Text>{specificFund?.name}</Text>
+                <Text as={"p"} fontSize={"1rem"} fontWeight={"500"}>
+                  {specificFund?.description}
+                </Text>
+              </Box>
+            </Stack>
+          </Heading>
+          <Heading>{toIndianCurrency(specificFund?.minimumInvestment)}</Heading>
         </Stack>
-        <Text>{specificFund?.description}</Text>
       </Stack>
       <Stack direction="row" spacing={25} mt={8}>
         <Text>Purchase Type:</Text>

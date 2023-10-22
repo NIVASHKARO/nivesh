@@ -6,6 +6,7 @@ import {
   InputLeftAddon,
   InputGroup,
   Input,
+  Image,
   Select,
   SimpleGrid,
   Stack,
@@ -217,7 +218,19 @@ function UserDashboard() {
                   fund?.invested || 0 + fund?.recurringTotal || 0;
                 return (
                   <Tr key={fund?.id}>
-                    <Td color="gray.600">{fund?.id?.name}</Td>
+                    <Td color="gray.600">
+                      <Stack spacing={4} direction={"row"} alignItems={"center"}>
+                        <Image
+                          borderRadius="full"
+                          boxSize="100px"
+                          src={fund?.id?.image}
+                          alt={fund?.id?.name}
+                          fallbackSrc="https://via.placeholder.com/100"
+                          size="md"
+                        />
+                        <Text>{fund?.id?.name}</Text>
+                      </Stack>
+                    </Td>
                     <Td
                       sx={{
                         color: "gray.600",
