@@ -232,6 +232,7 @@ const InitialBuy = () => {
           placeholder="Enter Amount"
           onChange={(e) => setPurchaseAmount(e.target.value)}
           w="fit-content"
+          isInvalid={purchaseAmount > 1000000}
         />{" "}
       </Stack>
 
