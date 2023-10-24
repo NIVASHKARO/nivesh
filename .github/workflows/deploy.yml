@@ -21,7 +21,7 @@ jobs:
 
       - name: Install dependencies and build frontend-landing
         run: |
-          cd nivesh_landing-master
+          cd ../nivesh_landing-master
           yarn install
           yarn build
         working-directory: ./nivesh_landing-master
