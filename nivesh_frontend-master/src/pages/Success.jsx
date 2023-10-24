@@ -6,13 +6,14 @@ import { getSpecificOrder } from "../api/apis";
 import { useParams } from "react-router-dom";
 
 const Success = () => {
-  const { id } = useParams();
+  const { orderId } = useParams();
   const toast = useToast();
   const [order, setOrder] = useState(null);
 
   const handleGetOrderDetails = async () => {
     try {
-      const { data } = await getSpecificOrder(id);
+      const { data } = await getSpecificOrder(orderId);
+      console.log(data)
       if (data.status) {
         setOrder(data.data);
       }
@@ -53,8 +54,8 @@ const Success = () => {
         <Text>Order Status: {order?.status?.toUpperCase()}</Text>
       </Box>
       <Text color={"gray.500"}>
-        Congratulations on your purchase, We have received the payment for and
-        now awaited allotment by managers. Please Wait for the confirmation.
+        <Heading>Congratulations {order?.user?.name} ! </Heading>
+        You have successfully invested in {order?.fund?.id?.name}. Our team will get in touch with you !
       </Text>
     </Stack>
   );

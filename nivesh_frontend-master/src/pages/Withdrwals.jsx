@@ -6,6 +6,7 @@ import {
   AccordionPanel,
   Avatar,
   Badge,
+  FormErrorMessage,
   Box,
   Button,
   Flex,
@@ -110,7 +111,7 @@ const Withdrawals = () => {
   const { user } = useStore();
   const [withdrawals, setWithdrawals] = useState([]);
   const [fundId, setFundId] = useState(null);
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState(500);
   const [loading, setLoading] = useState(false);
   const [utr, setUtr] = useState("");
 
@@ -257,7 +258,7 @@ const Withdrawals = () => {
     }
   };
   const handleAddWithdrawal = async () => {
-    if (!fundId || isNaN(amount) || amount <= 0)
+    if (!fundId || isNaN(amount) || amount < 500)
       return toast({
         title: "Error",
         description: "Invalid details entered!",
@@ -273,8 +274,8 @@ const Withdrawals = () => {
         amount: amount,
       });
       setLoading(false);
-      if (data.error)
-        return toast({
+      if (data.error) {
+        toast({
           title: "Error",
           description: data.message,
           status: "error",
@@ -282,6 +283,8 @@ const Withdrawals = () => {
           isClosable: true,
           position: "top-right",
         });
+        return;
+      }
 
       handleGetAllWithdrawals();
       onClose();
@@ -309,10 +312,10 @@ const Withdrawals = () => {
   };
 
   const resetNewsForm = () => {
-    setNewsTitle("");
-    setNewsDescription("");
-    setNewsImage(null);
-    setNewsCategory("");
+    // setNewsTitle("");
+    // setNewsDescription("");
+    // setNewsImage(null);
+    // setNewsCategory("");
   };
 
   useEffect(() => {
@@ -387,10 +390,16 @@ const Withdrawals = () => {
                   placeholder="Enter Amount"
                   required
                   type="number"
-                  min={0}
+                  min={500}
+                  isInvalid={amount < 500}
                   size="md"
                   onChange={(e) => setAmount(+e.target.value)}
                 />
+                {amount < 500 && (
+                  <Text color={"crimson"}>
+                    Minimum amount for withdrawal is 500.
+                  </Text>
+                )}
               </Stack>
               <Stack direction="row" spacing={2}>
                 <Button
@@ -405,15 +414,20 @@ const Withdrawals = () => {
                 </Button>
                 <Button
                   onClick={onClose}
-                  isDisabled={loading}
+                  isDisabled={amount < 500 && loading}
                   isLoading={loading}
                 >
                   Close
-                </Button>            
+                </Button>
               </Stack>
               <Stack spacing={1}>
-                <Text color="gray.700" fontSize="0.7rem">(Charges may applicable). (After approval of withdrawal request, it will take up to 3-4
-working days to credit the amount in your Bank account).</Text>
+                <Text color="gray.700" fontSize="0.7rem">
+                  (Charges may applicable).{" "}
+                </Text>
+                <Text color="gray.700" fontSize="0.6rem">
+                  (After approval of withdrawal request, it will take up to 3-4
+                  working days to credit the amount in your Bank account).
+                </Text>
               </Stack>
             </Stack>
           </ModalBody>

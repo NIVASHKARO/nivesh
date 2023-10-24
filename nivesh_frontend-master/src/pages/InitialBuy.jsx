@@ -4,6 +4,7 @@ import {
   AlertIcon,
   AlertTitle,
   Box,
+  Image,
   Button,
   Heading,
   Input,
@@ -14,6 +15,8 @@ import {
   useColorModeValue,
   useToast,
 } from "@chakra-ui/react";
+import toIndianCurrency, { toIndianNumber } from "../helper";
+import SuccessModal from "./SuccessModal";
 import React, { useEffect, useRef, useState } from "react";
 import { buyNow, getSpecificFund, paymentStatus, baseurl } from "../api/apis";
 import { useNavigate, useParams } from "react-router-dom";
@@ -24,7 +27,7 @@ import useStore from "../store/store";
 const InitialBuy = () => {
   // const { user } = useStore();
   const user = useStore((state) => state.user);
-  const { id } = useParams();
+  const { id, orderId } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
   const [loading, setLoading] = useState(true);
@@ -195,64 +198,90 @@ const InitialBuy = () => {
   }, [id]);
 
   return (
-    <Stack spacing={3}>
-      <Text>Buying...</Text>
-      <Stack spacing={4} mt={10} border="1px" borderRadius={"md"} p={3}>
-        <Stack direction="row" justifyContent="space-between">
-          <Heading>{specificFund?.name}</Heading>
-          <Heading>₹ {specificFund?.minimumInvestment}</Heading>
-        </Stack>
-        <Text>{specificFund?.description}</Text>
-      </Stack>
-      <Stack direction="row" spacing={25} mt={8}>
-        <Text>Purchase Type:</Text>
-        <RadioGroup defaultValue={purchaseType}>
-          <Stack>
-            onChange={() => setPurchaseType("recurring")}
-            <Radio value="one-time" isChecked={purchaseType === "one-time"}>
-              One Time Payment
-            </Radio>
-            <Radio
-              value="recurring"
-              isChecked={purchaseType === "recurring"}
-              onChange={() => setPurchaseType("recurring")}
-            >
-              SIP / Recurring
-            </Radio>
+    <>
+      <Stack spacing={3}>
+        <Text>Buying...</Text>
+        <Stack spacing={4} mt={10} border="1px" borderRadius={"md"} p={3}>
+          <Stack direction="row" justifyContent="space-between">
+            <Heading>
+              <Stack spacing={4} direction={"row"}>
+                <Image
+                  borderRadius="full"
+                  boxSize="100px"
+                  src={specificFund?.image}
+                  alt={specificFund?.name}
+                  fallbackSrc="https://via.placeholder.com/100"
+                  size="md"
+                />
+                <Box
+                  display={"flex"}
+                  flexDirection={"column"}
+                  justifyContent={"space-between"}
+                >
+                  <Text>{specificFund?.name}</Text>
+                  <Text as={"p"} fontSize={"1rem"} fontWeight={"500"}>
+                    {specificFund?.description}
+                  </Text>
+                </Box>
+              </Stack>
+            </Heading>
+            <Heading>
+              {toIndianCurrency(specificFund?.minimumInvestment)}
+            </Heading>
           </Stack>
-        </RadioGroup>
-      </Stack>
-      <Stack direction="row" spacing={5} mt={8}>
-        <Stack direction="column">
-          <Text>{`Purchase Amount (₹):`}</Text>
-          <Text>(in multiple of min investment amount)</Text>
         </Stack>
-        <Input
-          type="number"
-          placeholder="Enter Amount"
-          onChange={(e) => setPurchaseAmount(e.target.value)}
-          w="fit-content"
-        />{" "}
-      </Stack>
+        <Stack direction="row" spacing={25} mt={8}>
+          <Text>Purchase Type:</Text>
+          <RadioGroup defaultValue={purchaseType}>
+            <Stack>
+              onChange={() => setPurchaseType("recurring")}
+              <Radio value="one-time" isChecked={purchaseType === "one-time"}>
+                One Time Payment
+              </Radio>
+              <Radio
+                value="recurring"
+                isChecked={purchaseType === "recurring"}
+                onChange={() => setPurchaseType("recurring")}
+              >
+                SIP / Recurring
+              </Radio>
+            </Stack>
+          </RadioGroup>
+        </Stack>
+        <Stack direction="row" spacing={5} mt={8}>
+          <Text>{`Purchase Amount (₹):`}</Text>
+          <Stack direction="column">
+            <Input
+              type="number"
+              placeholder="Enter Amount"
+              onChange={(e) => setPurchaseAmount(e.target.value)}
+              w="fit-content"
+              isInvalid={purchaseAmount > 1000000}
+            />{" "}
+            <Text>(in multiple of min investment amount)</Text>
+          </Stack>
+        </Stack>
 
-      <Button
-        rounded={"none"}
-        w={"full"}
-        mt={8}
-        size={"lg"}
-        py={"7"}
-        bg={useColorModeValue("gray.900", "gray.50")}
-        color={useColorModeValue("white", "gray.900")}
-        textTransform={"uppercase"}
-        _hover={{
-          transform: "translateY(2px)",
-          boxShadow: "lg",
-        }}
-        onClick={handlePayment}
-      >
-        BUY - {purchaseAmount}
-      </Button>
-    </Stack>
+        <Button
+          rounded={"none"}
+          w={"full"}
+          mt={8}
+          size={"lg"}
+          py={"7"}
+          bg={useColorModeValue("gray.900", "gray.50")}
+          color={useColorModeValue("white", "gray.900")}
+          textTransform={"uppercase"}
+          _hover={{
+            transform: "translateY(2px)",
+            boxShadow: "lg",
+          }}
+          onClick={handlePayment}
+        >
+          BUY - {toIndianNumber(purchaseAmount)}
+        </Button>
+      </Stack>
+      <SuccessModal isSuccessOpen={Boolean(orderId)} orderId={orderId} handleClose={() => navigate(-1)}/>
+    </>
   );
 };
 

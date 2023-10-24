@@ -7,6 +7,12 @@ export default function toIndianCurrency(num) {
     currency: "INR",
   });
 }
+export function toIndianNumber(num) {
+  if (!num) {
+    return 0;
+  }
+  return num.toLocaleString("en-IN", { maximumSignificantDigits: 3 })
+}
 export function numFormatter(num) {
   if (num > 999 && num < 1000000) {
     return (num / 1000).toFixed(1) + "K";

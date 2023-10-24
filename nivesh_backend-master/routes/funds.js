@@ -1074,7 +1074,8 @@ router.post("/verification", async (req, res) => {
         title: "New Recurring Purchase",
         message: `User with Mobile: ${userData.phone} has made a one-time purchase of ${order.amount} for fund ${order.fund} with subscription ID: ${order.subscription}`,
       });
-      return res.redirect(`${process.env.FRONTEND_URL}/success/${order._id}`);
+      // return res.redirect(`${process.env.FRONTEND_URL}/success/${order._id}`);
+      return res.redirect(`${process.env.FRONTEND_URL}/success-popup/${order._id}`);
     }
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -1137,7 +1138,8 @@ router.post("/verification", async (req, res) => {
       message: `User with Mobile: ${userData.phone} has made a one-time purchase of ${order.amount} for fund ${order.fund}`,
     });
 
-    res.redirect(`${process.env.FRONTEND_URL}/success/${order._id}`);
+    // res.redirect(`${process.env.FRONTEND_URL}/success/${order._id}`);
+    res.redirect(`${process.env.FRONTEND_URL}/success-popup/${order._id}`);
   } catch (e) {
     console.log(e);
     res.status(500).json({ message: "Something went Wrong.", error: true, status: false });
@@ -1308,12 +1310,20 @@ router.get("/order/:id", verifyToken, async (req, res) => {
         error: true,
         message: "Invalid Order ID",
       });
-    res.status(200).json({
-      status: true,
-      error: false,
-      message: "Order Fetched Successfully",
-      data: order,
-    });
+    else {
+      const user = await User.findById(order.user);
+      const fund = await Fund.findById(order.fund);
+      res.status(200).json({
+        status: true,
+        error: false,
+        message: "Order Fetched Successfully",
+        data: {
+          order,
+          user,
+          fund,
+        },
+      });
+    }
   } catch (e) {
     console.log(e);
     res.status(500).json({ message: "Something went Wrong.", error: true, status: false });
