@@ -1,0 +1,79 @@
+name: Deploy Projects to DigitalOcean Droplet
+
+on:
+  push:
+    branches:
+      - main  # Change this to your main branch name
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Install Node.js and Yarn
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14  # You can change the Node.js version if needed
+          registry-url: 'https://registry.yarnpkg.com'
+
+      - name: Install dependencies and build frontend-landing
+        run: |
+          cd nivesh_landing-master
+          yarn install
+          yarn build
+        working-directory: ./nivesh_landing-master
+
+      - name: Copy frontend-landing build artifacts to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "frontend-landing/build/"
+          target: "/var/www/niveshkro.com/"
+          strip_components: 1
+
+      - name: Install dependencies and build frontend-admin
+        run: |
+          cd nivesh_frontend-master
+          yarn install
+          yarn build
+        working-directory: ./nivesh_frontend-master
+
+      - name: Copy frontend-admin build artifacts to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "frontend-admin/build/"
+          target: "/var/www/admin.niveshkro.com/"
+          strip_components: 1
+
+      - name: Install dependencies and start nivesh backend
+        run: |
+          cd nivesh_backend-master
+          yarn install
+          yarn start
+        working-directory: ./nivesh_backend-master
+
+      - name: Copy backend-landing source code to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "nivesh_backend-master/"
+          target: "/var/www/api.niveshkro.com/"
+          strip_components: 1
+
+      - name: Restart Nginx and backend-landing
+        run: |
+          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} "sudo systemctl restart nginx"
+          ssh ${{ secrets.DROPLET_USERNAME }}@${{ secrets.DROPLET_IP }} -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} "sudo systemctl restart nivesh_backend-master"
